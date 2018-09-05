@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Shopping List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="grey darken-2">      
+
+    <!-- Nav Bar-->
+
+    <nav style="-webkit-app-region: drag">
+        <div class="nav-wrapper grey darken-4">
+            <a class="brand-logo left" style="margin-left: 1%"><i class="material-icons">flash_on</i> Simple List</a>
+            <ul class="right" style="-webkit-app-region: no-drag">
+                <li><a href="#" id="min-btn"><i class="material-icons">remove</i></a></li>
+                <li><a href="#" id="max-btn"><i class="material-icons" id="max-btn-icon">crop_square</i></a></li>
+                <li><a href="#" id="cls-btn"><i class="material-icons">close</i></a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Add item button -->
+
+    <div class="fixed-action-btn">
+        <a href="#" class="btn btn-floating grey darken-4" id="addWindowButton"><i class="material-icons">add</i></a>
+    </div>
+    
+    <!-- UL -->
+
+    <div class="container" style="background-color: white">
+        <ul id="shoppingList" class="grey darken-2"></ul>
+    </div>
+
+    <!-- delete button -->
+    
+    <div class="center-align">
+        <a class="waves-effect waves-light btn disabled grey darken-4" id="deleteButton"><i class="material-icons left">highlight_off</i>Remove All</a>
+    </div>
+
+    <script>
+        const electron = require ('electron');
+        const {ipcRenderer, remote, BrowserWindow} = electron;
+        const ul = document.querySelector('ul');
+
+        // Import
+        
+        var createAddWindow = electron.remote.require('./main.js').createAddWindow;
+
+        // Catch item:add
+
+        ipcRenderer.on('item:add', function(e, item){
+            document.getElementById("shoppingList").className = 'collection';
+            const li = document.createElement('li');
+            const div = document.createElement('div');
+            const a = document.createElement('a');
+            const i = document.createElement('i');
+            li.className = 'collection-item grey darken-3';
+            li.style = 'margin: .5%';
+            div.className = 'grey-text text-lighten-4'
+            a.className = 'secondary-content';
+            a.href = '#';
+            i.className = 'material-icons grey-text text-lighten-4';
+            const itemText = document.createTextNode(item);
+            const iconText = document.createTextNode('close');
+            li.appendChild(div);
+            div.appendChild(itemText);
+            div.appendChild(a);
+            a.appendChild(i);
+            i.appendChild(iconText);
+            document.getElementById("shoppingList").appendChild(li);
+            document.getElementById("deleteButton").classList.remove("disabled");
+        });
+
+        // Delete Button
+
+        document.getElementById("deleteButton").addEventListener("click", function(){
+            document.getElementById("shoppingList").innerHTML = '';
+            document.getElementById("shoppingList").className = '';
+            document.getElementById("deleteButton").classList.add("disabled");
+        });
+        
+        // catch item:clear
+
+        ipcRenderer.on('item:clear', function(){
+            document.getElementById("shoppingList").innerHTML = '';
+            document.getElementById("shoppingList").className = '';
+        });
+        
+        // Add Window
+
+        document.getElementById("addWindowButton").addEventListener("click", function(){
+            createAddWindow();
+        });
+        
+
+        // Remove Item
+        
+        document.getElementById("shoppingList").addEventListener("click", removeItem);
+
+        function removeItem (e){
+            if(e.target.parentNode.parentNode.parentNode.className == "collection-item grey darken-3")
+                e.target.parentNode.parentNode.parentNode.remove();
+
+            if (document.getElementById("shoppingList").children.length == 0){
+                document.getElementById("shoppingList").className = '';
+                document.getElementById("deleteButton").classList.add("disabled");
+            }
+        }
+
+        // Window Control
+
+        // Close Window
+
+        document.getElementById("cls-btn").addEventListener("click", function(e){
+            var currentWindow = remote.getCurrentWindow();
+            currentWindow.close();
+        });
+        
+        // Maximize Window
+
+        document.getElementById("max-btn").addEventListener("click", function(e){
+            var currentWindow = remote.getCurrentWindow();
+            if(!currentWindow.isMaximized()){
+                currentWindow.maximize();
+                document.getElementById("max-btn-icon").innerHTML = "crop_7_5";
+            }
+            else{
+                currentWindow.unmaximize();
+                document.getElementById("max-btn-icon").innerHTML = "crop_square";
+            }
+        });
+
+        // Minimize Window
+
+        document.getElementById("min-btn").addEventListener("click", function(e){
+            var currentWindow = remote.getCurrentWindow();
+            currentWindow.minimize();
+        });
+
+    </script>
+</body>
+</html>

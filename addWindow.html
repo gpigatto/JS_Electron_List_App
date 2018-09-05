@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Add Shopping List Item</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="grey darken-3">
+    <nav>
+        <div class="nav-wrapper grey lighten-1" style="-webkit-app-region: drag">
+            <a href="" class="brand-logo left grey-text text-darken-4" style="margin: 1%"><i class="material-icons">flash_on</i></a>
+            <ul class="right">
+                <li><a href="#" id="cls-btn" class="waves-effect waves-light grey-text text-darken-4" style="-webkit-app-region: no-drag"><i class="material-icons">close</i></a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <form>
+            <div>
+                <label for="item">Add Item</label>
+                <input type="text" id="item" class="input-field inline grey-text text-lighten-2"> 
+            </div>
+            <div class="center-align">
+                <button class="btn waves-effect waves-light disabled grey darken-1 grey-text text-lighten-2" type="submit" id="addItemButton">Add Item</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        const electron = require ('electron');
+        const {ipcRenderer, remote} = electron;
+
+        // Send item:data
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', submitForm);
+        
+        function submitForm (e){
+            e.preventDefault();
+            const item = document.querySelector('#item').value;
+            if(item !== "")
+                ipcRenderer.send('item:add', item);
+        }
+        
+        // Disable Send Button
+
+        const inputField = document.getElementById("item");
+        const inputButton = document.getElementById("addItemButton");
+        
+        item.oninput = function(){
+            if(item.value == ""){
+                inputButton.classList.add("disabled");
+            }
+            else{
+                inputButton.classList.remove("disabled");
+            }
+        };
+
+        // Close Window
+
+        document.getElementById("cls-btn").addEventListener("click", function(e){
+            var currentWindow = remote.getCurrentWindow ();
+            currentWindow.close();
+        });
+        
+    </script>
+</body>
+</html>
